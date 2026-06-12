@@ -247,7 +247,7 @@ export default function CatalogoPage() {
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const [productos, setProductos]         = useState<ProductoAPI[]>([]);
   const [total, setTotal]                 = useState(0);
-  const [loading, setLoading]             = useState(false);
+  const [loading, setLoading]             = useState(true);
 
   // Debounce search
   useEffect(() => {
@@ -310,8 +310,6 @@ export default function CatalogoPage() {
     currentCat?.label,
     activeSub ? activeSub.replace(/^.*? - /, "") : null,
   ].filter(Boolean).join(" › ");
-
-  const showProductGrid = Boolean(activeCat || debouncedSearch);
 
   return (
     <div className="min-h-screen bg-[#F9F8F6]">
@@ -435,10 +433,10 @@ export default function CatalogoPage() {
                   <p className="text-sm font-semibold text-[#111111]">{breadcrumbLabel}</p>
                 ) : (
                   <p className="text-sm font-semibold text-[#111111]">
-                    {debouncedSearch ? `Resultados para "${debouncedSearch}"` : "Categorías"}
+                    {debouncedSearch ? `Resultados para "${debouncedSearch}"` : "Todos los productos"}
                   </p>
                 )}
-                {showProductGrid && !loading && (
+                {!loading && (
                   <p className="text-xs text-gray-400 mt-0.5">
                     {total} producto{total !== 1 ? "s" : ""}
                   </p>
@@ -455,49 +453,15 @@ export default function CatalogoPage() {
               </div>
             </div>
 
-            {/* Tarjetas de categorías (vista inicial) */}
-            {!showProductGrid && (
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                {CATALOG.map((cat) => (
-                  <button
-                    key={cat.value}
-                    onClick={() => handleSelectCat(cat.value)}
-                    className="group bg-white rounded-2xl border border-gray-100 hover:border-[#DF8635] hover:shadow-lg transition-all duration-300 p-6 text-left flex flex-col gap-3"
-                  >
-                    <span className="text-[#DF8635]"><cat.Icon size={36} /></span>
-                    <div>
-                      <p className="font-bold text-[#111111] text-lg">{cat.label}</p>
-                      {cat.subs.length > 0 && (
-                        <p className="text-gray-400 text-xs mt-1 leading-relaxed">
-                          {cat.subs
-                            .filter(s => !s.value.startsWith("__group"))
-                            .slice(0, 4)
-                            .map(s => s.label)
-                            .join(", ")
-                          }
-                          {cat.subs.length > 4 ? "..." : ""}
-                        </p>
-                      )}
-                    </div>
-                    <span className="mt-auto text-[#DF8635] text-xs font-semibold flex items-center gap-1 group-hover:gap-2 transition-all">
-                      Ver productos <FiChevronRight size={12} />
-                    </span>
-                  </button>
-                ))}
-              </div>
-            )}
-
             {/* Grid de productos */}
-            {showProductGrid && (
-              loading ? <SkeletonGrid /> : productos.length > 0 ? (
-                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
-                  {productos.map((p) => <ProductCard key={p.id} p={p} />)}
-                </div>
-              ) : (
-                <div className="grid grid-cols-1">
-                  <EmptyState label={activeSub?.replace(/^[^-]+ - /, "") ?? currentCat?.label ?? "esta búsqueda"} />
-                </div>
-              )
+            {loading ? <SkeletonGrid /> : productos.length > 0 ? (
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+                {productos.map((p) => <ProductCard key={p.id} p={p} />)}
+              </div>
+            ) : (
+              <div className="grid grid-cols-1">
+                <EmptyState label={activeSub?.replace(/^[^-]+ - /, "") ?? currentCat?.label ?? "esta búsqueda"} />
+              </div>
             )}
           </div>
         </div>
